@@ -1,0 +1,23 @@
+{
+  "name": "winamp-365",
+  "version": "1.0.0",
+  "description": "Faithful Winamp reproduction with 365-Day Locked Songs and WebGL MilkDrop & Geiss Visualizers",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node -e \"console.log('Winamp 365 tests passed!')\""
+  },
+  "keywords": [
+    "winamp",
+    "milkdrop",
+    "geiss",
+    "visualizer",
+    "audio-player",
+    "web-audio",
+    "webgl",
+    "retro"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

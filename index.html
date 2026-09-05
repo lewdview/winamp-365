@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Winamp 365 - Faithful Winamp Reproduction with 365-Day Locked Songs & MilkDrop</title>
+  <link rel="stylesheet" href="css/winamp-skin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body class="theme-classic">
+
+  <!-- =========================================================================
+       DESKTOP TOPBAR
+       ========================================================================= -->
+  <header id="desktop-header">
+    <div class="brand-badge">
+      <span class="bolt-icon">⚡</span>
+      <span>WINAMP 365</span>
+      <span style="font-size: 10px; color: #888; font-weight: normal; margin-left: 4px;">PIM 365 Database Edition</span>
+    </div>
+
+    <div class="header-center-info">
+      <div id="day-badge-display" class="day-badge-header" title="Click to view 365-Day Calendar">
+        <span>📅</span>
+        <span id="current-day-label">Day 222 of 365 [Aug 10]</span>
+      </div>
+      <div style="font-size: 10px; color: #8899aa; font-family: monospace;">
+        Next Unlock: <span id="header-countdown" style="color: #ffaa00; font-weight: bold;">--:--:--</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="btn-open-song-info" class="header-btn" title="View Current Track Cover Art & PIM Metadata">
+        <span>🎵</span> PIM Song Info
+      </button>
+      <button id="btn-open-time-machine" class="header-btn" title="Time Machine & 365 Calendar">
+        <span>⏳</span> Day Lock & Time Machine
+      </button>
+      <button id="btn-open-importer" class="header-btn" title="Import Custom Audio Files or Folder">
+        <span>📥</span> Load Custom Files
+      </button>
+      <button id="btn-reset-layout" class="header-btn" title="Reset all windows to default docked position">
+        <span>📐</span> Reset Layout
+      </button>
+      <select id="skin-select" class="header-btn" style="padding: 3px 6px;">
+        <option value="classic">Skin: Winamp Classic</option>
+        <option value="cyber">Skin: Cyberpunk 90s</option>
+        <option value="win98">Skin: Windows 98</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       DESKTOP WORKSPACE (SCROLLABLE BOUNDS CONTAINER)
+       ========================================================================= -->
+  <main id="desktop-workspace">
+
+    <!-- =======================================================================
+         1. MAIN PLAYER WINDOW
+         ======================================================================= -->
+    <div id="window-main" class="winamp-window active-window">
+      <div class="window-titlebar">
+        <div class="window-title">
+          <span>⚡</span> WINAMP
+        </div>
+        <div class="window-controls">
+          <button class="win-btn win-btn-shade" title="Toggle Window Shade Mode">_</button>
+          <button class="win-btn win-btn-close" title="Close">×</button>
+        </div>
+      </div>
+
+      <div class="window-body">
+        <!-- Top Row: LCD + Marquee Display -->
+        <div class="main-top-section">
+          <!-- LCD Display -->
+          <div class="lcd-display-container">
+            <div class="lcd-timer-row">
+              <span id="lcd-mode-toggle" class="lcd-timer-mode" title="Click to toggle elapsed / remaining time">ELAPSED</span>
+              <span id="lcd-time" class="lcd-digits">00:00</span>
+            </div>
+            <div class="lcd-info-row">
+              <span id="lcd-track-num" class="lcd-track-no">TRK 222</span>
+              <span id="lcd-bitrate" class="lcd-badge lit">320 KBPS</span>
+              <span id="lcd-khz" class="lcd-badge lit">44.1 KHZ</span>
+              <span id="lcd-stereo" class="lcd-badge lit">STEREO</span>
+            </div>
+          </div>
+
+          <!-- Marquee & Mini Spectrum Visualizer -->
+          <div class="lcd-marquee-container">
+            <div class="marquee-viewport">
+              <span id="marquee-text" class="marquee-text">*** WINAMP 365: IT REALLY WHIPS THE LLAMA'S ASS *** DAY 222 UNLOCKED</span>
+            </div>
+            <canvas id="mini-vis-canvas" class="main-visualizer-mini-preview" width="154" height="18" title="Click to toggle Spectrum / Oscilloscope mode"></canvas>
+          </div>
+        </div>
+
+        <!-- Scrub / Seek Bar -->
+        <div id="scrub-bar" class="scrub-bar-container" title="Click to seek">
+          <div id="scrub-fill" class="scrub-bar-fill"></div>
+          <div id="scrub-thumb" class="scrub-bar-thumb"></div>
+        </div>
+
+        <!-- Sliders & Toggles -->
+        <div class="sliders-and-toggles-row">
+          <!-- Volume Slider -->
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span>VOL</span>
+              <span id="vol-readout">80%</span>
+            </div>
+            <input type="range" id="vol-slider" class="retro-slider" min="0" max="100" value="80" title="Volume">
+          </div>
+
+          <!-- Pan / Balance Slider -->
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span>BAL</span>
+              <span id="pan-readout">C</span>
+            </div>
+            <input type="range" id="pan-slider" class="retro-slider" min="-100" max="100" value="0" title="Balance / Pan">
+          </div>
+
+          <!-- Window Toggles -->
+          <div class="toggles-group">
+            <button id="toggle-eq-btn" class="toggle-btn active" title="Toggle Equalizer Window">EQ</button>
+            <button id="toggle-pl-btn" class="toggle-btn active" title="Toggle Playlist Window">PL</button>
+            <button id="toggle-vis-btn" class="toggle-btn active" title="Toggle Visualizer Window">VIS</button>
+          </div>
+        </div>
+
+        <!-- Transport Controls -->
+        <div class="transport-buttons-row">
+          <button id="btn-prev" class="transport-btn" title="Previous Track (Z)">|&lt;&lt;</button>
+          <button id="btn-play" class="transport-btn" title="Play (X)">&gt;</button>
+          <button id="btn-pause" class="transport-btn" title="Pause (C)">||</button>
+          <button id="btn-stop" class="transport-btn" title="Stop (V)">■</button>
+          <button id="btn-next" class="transport-btn" title="Next Track (B)">&gt;&gt;|</button>
+          <button id="btn-eject" class="transport-btn eject-btn" title="Song Info / Importer (L)">⏏</button>
+
+          <div class="transport-mode-toggles">
+            <button id="btn-shuffle" class="mode-icon-btn" title="Toggle Shuffle (S)">🔀</button>
+            <button id="btn-repeat" class="mode-icon-btn" title="Toggle Repeat (R)">🔁</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         2. EQUALIZER WINDOW
+         ======================================================================= -->
+    <div id="window-eq" class="winamp-window active-window">
+      <div class="window-titlebar">
+        <div class="window-title">
+          <span>🎚️</span> WINAMP EQUALIZER
+        </div>
+        <div class="window-controls">
+          <button class="win-btn win-btn-shade">_</button>
+          <button class="win-btn win-btn-close">×</button>
+        </div>
+      </div>
+
+      <div class="window-body">
+        <div class="eq-top-bar">
+          <div class="eq-switches">
+            <div id="eq-power-toggle" class="eq-toggle-switch" title="Toggle EQ On/Off">
+              <div id="eq-power-led" class="eq-led on"></div>
+              <span>ON</span>
+            </div>
+            <div id="eq-auto-toggle" class="eq-toggle-switch" title="Toggle Auto Gain EQ">
+              <div id="eq-auto-led" class="eq-led"></div>
+              <span>AUTO</span>
+            </div>
+          </div>
+
+          <div style="position: relative;">
+            <button id="btn-eq-presets" class="eq-presets-btn">PRESETS ▾</button>
+            <div id="eq-presets-menu" class="eq-presets-menu">
+              <div class="eq-preset-item" data-preset="flat">Flat</div>
+              <div class="eq-preset-item" data-preset="club">Club</div>
+              <div class="eq-preset-item" data-preset="rock">Rock</div>
+              <div class="eq-preset-item" data-preset="pop">Pop</div>
+              <div class="eq-preset-item" data-preset="techno">Techno</div>
+              <div class="eq-preset-item" data-preset="dance">Dance</div>
+              <div class="eq-preset-item" data-preset="reggae">Reggae</div>
+              <div class="eq-preset-item" data-preset="classical">Classical</div>
+              <div class="eq-preset-item" data-preset="fullbass">Full Bass & Treble</div>
+              <div class="eq-preset-item" data-preset="vocal">Vocal Boost</div>
+              <div class="eq-preset-item" data-preset="synthwave">90s Synthwave</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10-Band Sliders & Spline Curve -->
+        <div class="eq-sliders-grid">
+          <canvas id="eq-curve-canvas" class="eq-curve-canvas" width="220" height="56"></canvas>
+
+          <!-- Preamp Slider -->
+          <div class="eq-band-col">
+            <input type="range" id="eq-preamp-slider" class="eq-v-slider" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">PRE</span>
+          </div>
+
+          <!-- 10 Frequency Bands -->
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="0" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">60</span>
+          </div>
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="1" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">170</span>
+          </div>
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="2" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">310</span>
+          </div>
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="3" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">600</span>
+          </div>
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="4" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">1K</span>
+          </div>
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="5" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">3K</span>
+          </div>
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="6" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">6K</span>
+          </div>
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="7" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">12K</span>
+          </div>
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="8" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">14K</span>
+          </div>
+          <div class="eq-band-col">
+            <input type="range" class="eq-v-slider eq-band-slider" data-band="9" min="-12" max="12" value="0" orient="vertical">
+            <span class="eq-band-label">16K</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         3. PLAYLIST EDITOR (365 SONGS & DAY LOCK)
+         ======================================================================= -->
+    <div id="window-playlist" class="winamp-window active-window">
+      <div class="window-titlebar">
+        <div class="window-title">
+          <span>📜</span> WINAMP PLAYLIST [365 PIM SONGS]
+        </div>
+        <div class="window-controls">
+          <button class="win-btn win-btn-shade">_</button>
+          <button class="win-btn win-btn-close">×</button>
+        </div>
+      </div>
+
+      <div class="playlist-body">
+        <!-- Filter Tabs -->
+        <div class="playlist-filter-bar">
+          <button class="pl-tab-btn active" data-filter="all">ALL 365</button>
+          <button class="pl-tab-btn" data-filter="unlocked">UNLOCKED</button>
+          <button class="pl-tab-btn" data-filter="today">TODAY (222)</button>
+          <button class="pl-tab-btn" data-filter="locked">LOCKED</button>
+        </div>
+
+        <!-- Quick Search -->
+        <div class="playlist-search-box">
+          <input type="text" id="pl-search-input" class="playlist-search-input" placeholder="🔍 Search PIM title, BPM, key, genre, day...">
+        </div>
+
+        <!-- Track List Table -->
+        <div id="playlist-tracklist" class="playlist-tracklist-container">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Playlist Footer -->
+        <div class="playlist-footer-bar">
+          <div class="pl-footer-btn-group">
+            <button id="pl-btn-info" class="pl-footer-btn" title="View PIM Song Card & Info">INFO</button>
+            <button id="pl-btn-add-file" class="pl-footer-btn" title="Add Single Audio Files">+ FILE</button>
+            <button id="pl-btn-add-dir" class="pl-footer-btn" title="Add Folder of Audio Files">+ DIR</button>
+            <button id="pl-btn-time-machine" class="pl-footer-btn" title="Time Machine">⏳ TIME</button>
+            <button id="pl-btn-clear" class="pl-footer-btn" title="Reset to PIM Defaults">RESET</button>
+          </div>
+          <div id="pl-stats" class="pl-stats-counter">222/365 Unlocked (61%)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         4. MILKDROP & GEISS VISUALIZER WINDOW
+         ======================================================================= -->
+    <div id="window-visualizer" class="winamp-window active-window">
+      <div class="window-titlebar">
+        <div class="window-title">
+          <span>✨</span> MILKDROP & GEISS VISUALIZER
+        </div>
+        <div class="window-controls">
+          <button class="win-btn win-btn-shade">_</button>
+          <button class="win-btn win-btn-close">×</button>
+        </div>
+      </div>
+
+      <div class="visualizer-body">
+        <canvas id="vis-canvas"></canvas>
+
+        <!-- Floating HUD -->
+        <div class="vis-overlay-hud">
+          <div class="vis-preset-info">
+            <span id="vis-badge" class="vis-tag-badge geiss">GEISS</span>
+            <select id="vis-preset-select" class="header-btn" style="padding: 2px 6px; font-size: 9px; max-width: 220px;">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+
+          <div class="vis-controls-group">
+            <span id="vis-fps-readout" style="font-family: monospace; font-size: 8px; color: #00ff55; margin-right: 4px;">60 FPS</span>
+            <button id="vis-prev-btn" class="vis-hud-btn" title="Previous Preset (P)">◀</button>
+            <button id="vis-next-btn" class="vis-hud-btn" title="Next Preset (N)">▶</button>
+            <button id="vis-cycle-btn" class="vis-hud-btn" title="Toggle Auto Preset Cycle">AUTO: ON</button>
+            <button id="vis-fullscreen-btn" class="vis-hud-btn" title="Fullscreen (F)">⛶ FULL</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- =========================================================================
+       5. PIM SONG INFO & COVER ART MODAL
+       ========================================================================= -->
+  <div id="modal-song-info" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 540px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🎵</span> <span id="info-modal-header-title">Day 222 - dont fuck up rotation by Halos1</span>
+        </div>
+        <button class="win-btn modal-close-btn" style="width: 16px; height: 16px; font-size: 11px;">×</button>
+      </div>
+
+      <div class="modal-body" style="display: grid; grid-template-columns: 160px 1fr; gap: 16px; align-items: start;">
+        <div>
+          <img id="info-cover-img" src="https://files.th3scr1b3.art/covers/august/10%20-%20dont_fuck_up_rotation.jpg" alt="Album Cover Art" style="width: 100%; aspect-ratio: 1/1; border-radius: 4px; border: 1px solid #333; background: #000; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.8);">
+          <div id="info-day-tag" style="margin-top: 8px; text-align: center; font-size: 10px; font-weight: bold; color: #ffaa00; background: #1c140a; padding: 4px; border-radius: 3px; border: 1px solid #ffaa0055;">
+            Day 222 of 365 [Aug 10]
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div id="info-title" style="font-size: 15px; font-weight: bold; color: #00e5ff;">dont fuck up rotation by Halos1</div>
+          <div id="info-artist" style="font-size: 11px; color: #aaa;">By TH3SCR1B3 • Aug 10</div>
+
+          <div style="margin: 6px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 10px; font-family: monospace;">
+            <div style="background: #11131c; padding: 4px 6px; border-radius: 2px; border: 1px solid #282b3a;">
+              <span style="color: #888;">BPM:</span> <span id="info-bpm" style="color: #00ff55; font-weight: bold;">125</span>
+            </div>
+            <div style="background: #11131c; padding: 4px 6px; border-radius: 2px; border: 1px solid #282b3a;">
+              <span style="color: #888;">KEY:</span> <span id="info-key" style="color: #ffaa00; font-weight: bold;">C major</span>
+            </div>
+            <div style="background: #11131c; padding: 4px 6px; border-radius: 2px; border: 1px solid #282b3a;">
+              <span style="color: #888;">GENRE:</span> <span id="info-genre" style="color: #fff;">Alternative, Indie</span>
+            </div>
+            <div style="background: #11131c; padding: 4px 6px; border-radius: 2px; border: 1px solid #282b3a;">
+              <span style="color: #888;">STATUS:</span> <span id="info-status" style="color: #00ff55;">Unlocked (Active Day)</span>
+            </div>
+          </div>
+
+          <div style="font-size: 10px; color: #bbb; line-height: 1.4; background: #0c0e14; padding: 8px; border-radius: 4px; border: 1px solid #202330;">
+            <div style="font-weight: bold; color: #8899aa; margin-bottom: 2px;">THEME & DESCRIPTION:</div>
+            <div id="info-description">Exploring substance use and friendship.</div>
+          </div>
+
+          <div style="margin-top: 6px; display: flex; gap: 8px;">
+            <button id="info-btn-play-now" class="header-btn" style="flex: 1; justify-content: center; background: #00e5ff; color: #000; font-weight: bold;">
+              ▶ Play Track
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       6. DAY LOCK & TIME MACHINE MODAL
+       ========================================================================= -->
+  <div id="modal-time-machine" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>⏳</span> 365-Day Lock System & Time Machine
+        </div>
+        <button class="win-btn modal-close-btn" style="width: 16px; height: 16px; font-size: 11px;">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="time-machine-box">
+          <div class="time-machine-title">
+            <span>TIME MACHINE CONTROLS</span>
+            <span id="tm-simulated-label" style="color: #00e5ff;">Canonical Unlock (Day 222)</span>
+          </div>
+          <div class="tm-slider-row">
+            <span style="font-size: 10px; font-weight: bold; color: #888;">Day 1</span>
+            <input type="range" id="tm-day-slider" class="tm-slider" min="1" max="365" value="222">
+            <span style="font-size: 10px; font-weight: bold; color: #888;">Day 365</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 8px;">
+              <button id="btn-tm-reset-real" class="header-btn">⏮️ Sync Day 222</button>
+              <button id="btn-tm-unlock-all" class="header-btn">🔓 Toggle Dev Unlock All</button>
+            </div>
+            <div id="tm-status-pill" style="font-size: 10px; color: #ffaa00; font-family: monospace;">
+              Unlocked: 222 / 365 (61%)
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size: 10px; font-weight: bold; color: #aaa; margin-bottom: 6px;">
+          365-DAY CALENDAR GRID (Click any day to jump / test)
+        </div>
+        <div id="calendar-grid-365" class="calendar-grid-365">
+          <!-- Rendered dynamically (365 cells) -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       7. AUDIO IMPORTER MODAL
+       ========================================================================= -->
+  <div id="modal-importer" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>📥</span> Load Custom Audio Files
+        </div>
+        <button class="win-btn modal-close-btn" style="width: 16px; height: 16px; font-size: 11px;">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="dropzone-box" class="dropzone-box">
+          <div class="dropzone-icon">📁</div>
+          <div style="font-size: 13px; font-weight: bold; color: #fff; margin-bottom: 4px;">
+            Drag & Drop your custom MP3 / FLAC / WAV / OGG files here
+          </div>
+          <div style="font-size: 11px; color: #8899aa; margin-bottom: 14px;">
+            Files named <code>001 - Song.mp3</code>, <code>Day 45.flac</code> or similar will override specific PIM days.
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+            <label class="header-btn" style="cursor: pointer;">
+              <span>📄</span> Select Files
+              <input type="file" id="file-input-multiple" multiple accept="audio/*" style="display: none;">
+            </label>
+            <label class="header-btn" style="cursor: pointer;">
+              <span>📁</span> Select Entire Music Folder
+              <input type="file" id="file-input-dir" webkitdirectory directory multiple style="display: none;">
+            </label>
+          </div>
+        </div>
+
+        <div style="margin-top: 14px; background: #10121a; padding: 10px; border-radius: 4px; border: 1px solid #282b3a; font-size: 10px; color: #aaa;">
+          <div style="font-weight: bold; color: #00e5ff; margin-bottom: 4px;">⚡ Connected to PIM 365 Database</div>
+          <div>Winamp 365 is natively seeded with the official 365 songs from PIM (TH3SCR1B3). Custom uploaded files are stored in IndexedDB and take priority over default streams.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Main Application Entry Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
