@@ -1,36 +1,23 @@
 {
   "version": 2,
-  "cleanUrls": true,
-  "headers": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, HEAD, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Range, Content-Type, Accept"
-        },
-        {
-          "key": "Accept-Ranges",
-          "value": "bytes"
-        }
-      ]
-    },
+      "src": "server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "index.html",
+          "css/**",
+          "js/**",
+          "data/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
     {
-      "source": "/data/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400, s-maxage=604800"
-        }
-      ]
+      "src": "/(.*)",
+      "dest": "server.js"
     }
   ]
 }
