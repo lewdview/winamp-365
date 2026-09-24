@@ -63,6 +63,7 @@ class Winamp365App {
     this.bindAudioListeners();
     this.bindTransportControls();
     this.bindEqualizerControls();
+    this.bindDSPControls();
     this.bindPlaylistControls();
     this.bindVisualizerControls();
     this.bindDayLockModal();
@@ -116,6 +117,24 @@ class Winamp365App {
 
     this.audio.onEnded = () => {
       this.playNextTrack();
+    };
+
+    this.audio.onRequestNextTrack = (crossfade) => {
+      this.playNextTrack(crossfade);
+    };
+
+    this.audio.onCrossfadeProgress = (progressDir) => {
+      const fader = document.getElementById('crossfader-fader');
+      const tag = document.getElementById('dj-status-badge');
+      if (fader) {
+        const pct = Math.min(100, Math.max(0, ((progressDir + 1) / 2) * 100));
+        fader.style.left = `${pct}%`;
+      }
+      if (tag) {
+        const isMixing = Math.abs(progressDir) < 0.95;
+        tag.textContent = isMixing ? 'MIXING' : 'READY';
+        tag.style.color = isMixing ? '#ffaa00' : '#00ff55';
+      }
     };
 
     this.audio.onPlayStateChange = (isPlaying) => {
@@ -232,6 +251,22 @@ class Winamp365App {
       this.windowManager.toggleWindow('window-visualizer');
       e.target.classList.toggle('active');
     });
+
+    const toggleDspBtn = document.getElementById('toggle-dsp-btn');
+    if (toggleDspBtn) {
+      toggleDspBtn.addEventListener('click', (e) => {
+        this.windowManager.toggleWindow('window-dsp');
+        e.target.classList.toggle('active');
+      });
+    }
+
+    const toggleDspHdr = document.getElementById('btn-toggle-dsp-hdr');
+    if (toggleDspHdr) {
+      toggleDspHdr.addEventListener('click', () => {
+        this.windowManager.toggleWindow('window-dsp');
+        if (toggleDspBtn) toggleDspBtn.classList.toggle('active');
+      });
+    }
   }
 
   // =========================================================================
@@ -329,6 +364,173 @@ class Winamp365App {
     }
     ctx.stroke();
     ctx.shadowBlur = 0;
+  }
+
+  // =========================================================================
+  // DSP Effects Studio & Auto-DJ Controls
+  // =========================================================================
+  bindDSPControls() {
+    // 1. Power / Master Bypass Toggle
+    const powerBtn = document.getElementById('dsp-power-toggle');
+    const powerLed = document.getElementById('dsp-power-led');
+    if (powerBtn && powerLed) {
+      powerBtn.addEventListener('click', () => {
+        const state = this.audio.toggleDSP();
+        powerLed.classList.toggle('on', state);
+        powerBtn.textContent = state ? 'ON' : 'OFF';
+        this.showToast(`DSP Studio Effects: ${state ? 'ENABLED' : 'BYPASSED'}`);
+      });
+    }
+
+    // 2. Preset Selector
+    const presetSelect = document.getElementById('dsp-preset-select');
+    if (presetSelect) {
+      presetSelect.addEventListener('change', (e) => {
+        const p = this.audio.applyDSPPreset(e.target.value);
+        const speedSlider = document.getElementById('dsp-speed-slider');
+        const speedReadout = document.getElementById('speed-readout');
+        if (speedSlider) speedSlider.value = Math.round(p.speed * 100);
+        if (speedReadout) speedReadout.textContent = `${p.speed.toFixed(2)}x`;
+
+        const bassSlider = document.getElementById('dsp-bass-slider');
+        const bassReadout = document.getElementById('bass-readout');
+        if (bassSlider) bassSlider.value = p.bass;
+        if (bassReadout) bassReadout.textContent = `+${p.bass}dB`;
+
+        const satSlider = document.getElementById('dsp-sat-slider');
+        const satReadout = document.getElementById('sat-readout');
+        if (satSlider) satSlider.value = p.sat;
+        if (satReadout) satReadout.textContent = `${p.sat}%`;
+
+        const widthSlider = document.getElementById('dsp-width-slider');
+        const widthReadout = document.getElementById('width-readout');
+        if (widthSlider) widthSlider.value = p.width;
+        if (widthReadout) widthReadout.textContent = `${p.width}%`;
+
+        const reverbSlider = document.getElementById('dsp-reverb-slider');
+        const reverbReadout = document.getElementById('reverb-readout');
+        if (reverbSlider) reverbSlider.value = p.revMix;
+        if (reverbReadout) reverbReadout.textContent = `${p.revMix}%`;
+
+        this.showToast(`DSP Preset: ${e.target.options[e.target.selectedIndex].text}`);
+      });
+    }
+
+    // 3. Playback Speed Slider
+    const speedSlider = document.getElementById('dsp-speed-slider');
+    const speedReadout = document.getElementById('speed-readout');
+    if (speedSlider && speedReadout) {
+      speedSlider.addEventListener('input', (e) => {
+        const speed = parseInt(e.target.value, 10) / 100;
+        this.audio.setPlaybackSpeed(speed);
+        speedReadout.textContent = `${speed.toFixed(2)}x`;
+      });
+    }
+
+    // Reset Speed Button
+    const resetSpeedBtn = document.getElementById('btn-reset-speed');
+    if (resetSpeedBtn && speedSlider && speedReadout) {
+      resetSpeedBtn.addEventListener('click', () => {
+        speedSlider.value = 100;
+        this.audio.setPlaybackSpeed(1.0);
+        speedReadout.textContent = '1.00x';
+        this.showToast('Playback Speed: Reset to 1.00x');
+      });
+    }
+
+    // 4. Pitch Mode Toggle (Preserve Pitch vs Tape/Vinyl Varipitch)
+    const pitchToggleBtn = document.getElementById('btn-pitch-mode');
+    const pitchModeLabel = document.getElementById('pitch-mode-label');
+    if (pitchToggleBtn && pitchModeLabel) {
+      pitchToggleBtn.addEventListener('click', () => {
+        const newMode = !this.audio.preservePitch;
+        this.audio.setPitchMode(newMode);
+        pitchToggleBtn.classList.toggle('active', newMode);
+        pitchModeLabel.textContent = newMode ? 'PITCH: TIME STRETCH' : 'PITCH: TAPE VARICLIP';
+        this.showToast(newMode ? 'Pitch Mode: Time-Stretch (Preserve Key)' : 'Pitch Mode: Tape / Vinyl Variclip');
+      });
+    }
+
+    // 5. Vinyl Motor Brake Button
+    const vinylBrakeBtn = document.getElementById('btn-vinyl-brake');
+    if (vinylBrakeBtn) {
+      vinylBrakeBtn.addEventListener('click', () => {
+        const isBraking = this.audio.triggerVinylBrake();
+        vinylBrakeBtn.classList.toggle('active', isBraking);
+        if (isBraking) {
+          this.showToast('🛑 Vinyl Brake: Motor Slowing Down...');
+        } else {
+          this.showToast('⚡ Vinyl Brake: Motor Spinning Up!');
+        }
+      });
+    }
+
+    // 6. Reverb Wet/Dry Mix Slider
+    const reverbSlider = document.getElementById('dsp-reverb-slider');
+    const reverbReadout = document.getElementById('reverb-readout');
+    if (reverbSlider && reverbReadout) {
+      reverbSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        this.audio.setReverbMix(val);
+        reverbReadout.textContent = `${val}%`;
+      });
+    }
+
+    // 7. 3D Spatial Stereo Width Slider
+    const widthSlider = document.getElementById('dsp-width-slider');
+    const widthReadout = document.getElementById('width-readout');
+    if (widthSlider && widthReadout) {
+      widthSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        this.audio.setStereoWidth(val);
+        widthReadout.textContent = `${val}%`;
+      });
+    }
+
+    // 8. 55Hz Sub-Bass Exciter Slider
+    const bassSlider = document.getElementById('dsp-bass-slider');
+    const bassReadout = document.getElementById('bass-readout');
+    if (bassSlider && bassReadout) {
+      bassSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        this.audio.setBassExciter(val);
+        bassReadout.textContent = `+${val}dB`;
+      });
+    }
+
+    // 9. Tape / Tube Saturation Drive Slider
+    const satSlider = document.getElementById('dsp-sat-slider');
+    const satReadout = document.getElementById('sat-readout');
+    if (satSlider && satReadout) {
+      satSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        this.audio.setSaturation(val);
+        satReadout.textContent = `${val}%`;
+      });
+    }
+
+    // 10. Auto-DJ "Through & Through" Mode Toggle
+    const autoDjBtn = document.getElementById('btn-toggle-autodj');
+    const autoDjLed = document.getElementById('autodj-led');
+    if (autoDjBtn && autoDjLed) {
+      autoDjBtn.addEventListener('click', () => {
+        const isAuto = this.audio.toggleAutoDJ();
+        autoDjBtn.classList.toggle('active', isAuto);
+        autoDjLed.classList.toggle('on', isAuto);
+        this.showToast(isAuto ? '🎧 Auto-DJ: Play Through & Through ENABLED' : 'Auto-DJ: Manual Track End');
+      });
+    }
+
+    // 11. Crossfade Duration Slider
+    const crossfadeSlider = document.getElementById('dsp-crossfade-slider');
+    const crossfadeReadout = document.getElementById('crossfade-readout');
+    if (crossfadeSlider && crossfadeReadout) {
+      crossfadeSlider.addEventListener('input', (e) => {
+        const dur = (parseInt(e.target.value, 10) / 10).toFixed(1);
+        this.audio.setCrossfadeDuration(parseFloat(dur));
+        crossfadeReadout.textContent = `${dur}s`;
+      });
+    }
   }
 
   // =========================================================================
@@ -749,7 +951,7 @@ class Winamp365App {
   // =========================================================================
   // Playback Helpers
   // =========================================================================
-  async playCurrentTrack() {
+  async playCurrentTrack(crossfade = false) {
     const track = this.playlist.getCurrentTrack();
     if (!track) return;
 
@@ -758,14 +960,14 @@ class Winamp365App {
       return;
     }
 
-    await this.audio.playTrack(track);
+    await this.audio.playTrack(track, crossfade);
     this.updateTrackInfoUI();
   }
 
-  playNextTrack() {
+  playNextTrack(crossfade = false) {
     const next = this.playlist.getNextTrack(this.isShuffle, this.isRepeat);
     if (next) {
-      this.playCurrentTrack();
+      this.playCurrentTrack(crossfade);
     } else {
       this.audio.stop();
     }
@@ -774,7 +976,7 @@ class Winamp365App {
   playPrevTrack() {
     const prev = this.playlist.getPrevTrack(this.isShuffle);
     if (prev) {
-      this.playCurrentTrack();
+      this.playCurrentTrack(false);
     }
   }
 
@@ -833,6 +1035,11 @@ class Winamp365App {
         this.audio.stop();
       } else if (key === 'b') {
         this.playNextTrack();
+      } else if (key === 'd') {
+        this.windowManager.toggleWindow('window-dsp');
+        const b = document.getElementById('toggle-dsp-btn');
+        if (b) b.classList.toggle('active');
+        this.showToast('Toggled DSP Studio Window');
       } else if (key === 'n') {
         const preset = this.visualizer.nextPreset();
         this.updateVisHUD(preset);

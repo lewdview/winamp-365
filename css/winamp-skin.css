@@ -1254,3 +1254,327 @@ body.theme-win98 .window-titlebar {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* ==========================================================================
+   5. DSP STUDIO & "THROUGH & THROUGH" AUTO-DJ WINDOW
+   ========================================================================== */
+#window-dsp {
+  width: 275px;
+  min-width: 275px;
+  user-select: none;
+}
+
+.dsp-window-body {
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--wa-bg-panel);
+}
+
+.dsp-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #11131a;
+  padding: 4px 6px;
+  border-radius: 2px;
+  border: 1px solid var(--wa-border-dark);
+}
+
+.dsp-power-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dsp-power-btn {
+  background: var(--wa-btn-bg);
+  border-top: 1px solid var(--wa-border-light);
+  border-left: 1px solid var(--wa-border-light);
+  border-right: 1px solid var(--wa-border-dark);
+  border-bottom: 1px solid var(--wa-border-dark);
+  color: var(--wa-text-main);
+  font-size: 8px;
+  font-weight: bold;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.dsp-power-btn:active {
+  border-top: 1px solid var(--wa-border-dark);
+  border-left: 1px solid var(--wa-border-dark);
+  border-right: 1px solid var(--wa-border-light);
+  border-bottom: 1px solid var(--wa-border-light);
+}
+
+.power-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #331111;
+  border: 1px solid #111;
+  transition: all 0.2s ease;
+}
+
+.power-led.on {
+  background: #00ff55;
+  box-shadow: 0 0 6px #00ff55;
+}
+
+.dsp-label {
+  font-size: 8px;
+  font-family: monospace;
+  font-weight: bold;
+  color: #8899aa;
+  letter-spacing: 0.5px;
+}
+
+.retro-select {
+  background: #0a0c12;
+  border: 1px solid var(--wa-border-dark);
+  color: #00ff55;
+  font-family: monospace;
+  font-size: 9px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  max-width: 170px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* DSP Module Cards */
+.dsp-module-card {
+  background: #171922;
+  border-top: 1px solid var(--wa-border-light);
+  border-left: 1px solid var(--wa-border-light);
+  border-right: 1px solid var(--wa-border-dark);
+  border-bottom: 1px solid var(--wa-border-dark);
+  border-radius: 2px;
+  padding: 5px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dsp-module-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 8px;
+  font-weight: bold;
+  color: var(--wa-accent);
+  letter-spacing: 0.5px;
+}
+
+.dsp-mini-btn {
+  background: #232532;
+  border: 1px solid #44475a;
+  color: #bbb;
+  font-size: 7px;
+  padding: 1px 4px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.dsp-mini-btn:hover {
+  background: #333647;
+  color: #fff;
+  border-color: #00e5ff;
+}
+
+.dsp-control-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dsp-control-grid.dsp-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.dsp-slider-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dsp-slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  color: var(--wa-text-muted);
+  text-transform: uppercase;
+}
+
+.dsp-val-badge {
+  color: var(--wa-lcd-amber);
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.dsp-btn-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.dsp-action-toggle,
+.dsp-action-btn {
+  flex: 1;
+  background: var(--wa-btn-bg);
+  border-top: 1px solid var(--wa-border-light);
+  border-left: 1px solid var(--wa-border-light);
+  border-right: 1px solid var(--wa-border-dark);
+  border-bottom: 1px solid var(--wa-border-dark);
+  color: #bbb;
+  font-size: 7.5px;
+  font-weight: bold;
+  padding: 3px 4px;
+  cursor: pointer;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: all 0.15s ease;
+}
+
+.dsp-action-toggle:hover,
+.dsp-action-btn:hover {
+  background: #3c3e4d;
+  color: #fff;
+}
+
+.dsp-action-toggle.active {
+  background: #0d281e;
+  border-color: #00ff55;
+  color: #00ff55;
+}
+
+.dsp-action-btn.brake-btn {
+  background: #2a1518;
+  color: #ff5566;
+  border-color: #551a22;
+}
+
+.dsp-action-btn.brake-btn.active {
+  background: #ff3344;
+  color: #000;
+  box-shadow: 0 0 8px #ff3344;
+}
+
+/* DJ Deck Card */
+.dj-deck-card {
+  border-color: #ffaa0055;
+  background: #14161f;
+}
+
+.dj-live-tag {
+  font-family: monospace;
+  font-size: 7px;
+  padding: 1px 4px;
+  background: #112a1a;
+  color: #00ff55;
+  border: 1px solid #00ff5555;
+  border-radius: 2px;
+}
+
+.dj-deck-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dj-mode-row {
+  display: flex;
+  width: 100%;
+}
+
+.dj-toggle-btn {
+  width: 100%;
+  background: #1e222f;
+  border: 1px solid #3d425c;
+  border-radius: 2px;
+  padding: 4px 6px;
+  color: #e0e0e0;
+  font-size: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dj-toggle-btn.active {
+  border-color: #00ff88;
+  background: #092415;
+  color: #00ff88;
+}
+
+.dj-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #333;
+}
+
+.dj-indicator-dot.on {
+  background: #00ff55;
+  box-shadow: 0 0 6px #00ff55;
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Crossfader Visual Track */
+.dj-crossfader-visual {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  background: #0c0e14;
+  padding: 3px 6px;
+  border-radius: 2px;
+  border: 1px solid #232738;
+}
+
+.deck-tag {
+  font-size: 7px;
+  font-weight: bold;
+  font-family: monospace;
+}
+
+.deck-tag.deck-a { color: #00e5ff; }
+.deck-tag.deck-b { color: #ff007f; }
+
+.crossfader-track {
+  flex: 1;
+  position: relative;
+  height: 6px;
+  background: #1b1e2a;
+  border-radius: 2px;
+  border: 1px solid #333;
+}
+
+.crossfader-handle {
+  position: absolute;
+  top: -3px;
+  left: 0%;
+  width: 12px;
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  border: 1px solid #000;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  transform: translateX(-50%);
+  transition: left 0.08s linear;
+}
+

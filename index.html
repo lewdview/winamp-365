@@ -33,6 +33,9 @@
       <button id="btn-open-song-info" class="header-btn" title="View Current Track Cover Art & PIM Metadata">
         <span>🎵</span> PIM Song Info
       </button>
+      <button id="btn-toggle-dsp-hdr" class="header-btn" title="Toggle DSP Studio & Auto-DJ Deck">
+        <span>🎛️</span> DSP Studio
+      </button>
       <button id="btn-open-time-machine" class="header-btn" title="Time Machine & 365 Calendar">
         <span>⏳</span> Day Lock & Time Machine
       </button>
@@ -123,9 +126,10 @@
 
           <!-- Window Toggles -->
           <div class="toggles-group">
-            <button id="toggle-eq-btn" class="toggle-btn active" title="Toggle Equalizer Window">EQ</button>
-            <button id="toggle-pl-btn" class="toggle-btn active" title="Toggle Playlist Window">PL</button>
-            <button id="toggle-vis-btn" class="toggle-btn active" title="Toggle Visualizer Window">VIS</button>
+            <button id="toggle-eq-btn" class="toggle-btn active" title="Toggle Equalizer Window (E)">EQ</button>
+            <button id="toggle-pl-btn" class="toggle-btn active" title="Toggle Playlist Window (L)">PL</button>
+            <button id="toggle-vis-btn" class="toggle-btn active" title="Toggle Visualizer Window (V)">VIS</button>
+            <button id="toggle-dsp-btn" class="toggle-btn active" title="Toggle DSP Studio & Auto-DJ Window (D)">DSP</button>
           </div>
         </div>
 
@@ -325,6 +329,153 @@
             <button id="vis-next-btn" class="vis-hud-btn" title="Next Preset (N)">▶</button>
             <button id="vis-cycle-btn" class="vis-hud-btn" title="Toggle Auto Preset Cycle">AUTO: ON</button>
             <button id="vis-fullscreen-btn" class="vis-hud-btn" title="Fullscreen (F)">⛶ FULL</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         5. DSP STUDIO & "THROUGH & THROUGH" AUTO-DJ DECK WINDOW
+         ======================================================================= -->
+    <div id="window-dsp" class="winamp-window active-window">
+      <div class="window-titlebar">
+        <div class="window-title">
+          <span>🎛️</span> DSP STUDIO &amp; AUTO-DJ
+        </div>
+        <div class="window-controls">
+          <button class="win-btn win-btn-shade" title="Toggle Window Shade Mode">_</button>
+          <button class="win-btn win-btn-close" title="Close">×</button>
+        </div>
+      </div>
+
+      <div class="window-body dsp-window-body">
+        <!-- Top DSP Header: Power & Preset Selector -->
+        <div class="dsp-header-bar">
+          <div class="dsp-power-container">
+            <button id="dsp-power-toggle" class="dsp-power-btn" title="Toggle DSP Master Effects Bypass">ON</button>
+            <div id="dsp-power-led" class="power-led on"></div>
+            <span class="dsp-label">DSP FX</span>
+          </div>
+
+          <div class="dsp-preset-container">
+            <select id="dsp-preset-select" class="retro-select" title="Load Audio DSP Preset">
+              <option value="flat">Preset: Studio Direct (Flat)</option>
+              <option value="rave">Preset: 90s Warehouse Rave</option>
+              <option value="cassette">Preset: Vintage Cassette Tape</option>
+              <option value="nightcore">Preset: Nightcore Hyper-Energy</option>
+              <option value="screwed">Preset: Chopped &amp; Screwed</option>
+              <option value="cathedral">Preset: Cathedral Ambient Space</option>
+              <option value="subwoofer">Preset: Sub-Bass Destroyer</option>
+              <option value="lofi">Preset: Lo-Fi Vinyl Lounge</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Section 1: Pitch, Speed & Vinyl Brake FX -->
+        <div class="dsp-module-card">
+          <div class="dsp-module-title">
+            <span>⚡ PITCH, TEMPO &amp; VINYL BRAKE</span>
+            <button id="btn-reset-speed" class="dsp-mini-btn" title="Reset playback speed to 1.0x">1.0x</button>
+          </div>
+          <div class="dsp-control-grid">
+            <div class="dsp-slider-item">
+              <div class="dsp-slider-label">
+                <span>SPEED</span>
+                <span id="speed-readout" class="dsp-val-badge">1.00x</span>
+              </div>
+              <input type="range" id="dsp-speed-slider" class="retro-slider" min="50" max="200" value="100" title="Playback Speed (0.50x to 2.00x)">
+            </div>
+
+            <div class="dsp-btn-row">
+              <button id="btn-pitch-mode" class="dsp-action-toggle active" title="Toggle Time Stretch vs Analog Tape/Vinyl Pitch Shift">
+                <span>🎵</span> <span id="pitch-mode-label">PITCH: TIME STRETCH</span>
+              </button>
+              <button id="btn-vinyl-brake" class="dsp-action-btn brake-btn" title="Momentary Vinyl Motor Stop / Spin-Up">
+                <span>💿</span> VINYL BRAKE
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Space & Stereo Dynamics (Reverb & 3D Spatial Widener) -->
+        <div class="dsp-module-card">
+          <div class="dsp-module-title">
+            <span>🌌 SPACE &amp; 3D STEREO EXPANDER</span>
+          </div>
+          <div class="dsp-control-grid dsp-2col">
+            <div class="dsp-slider-item">
+              <div class="dsp-slider-label">
+                <span>REVERB MIX</span>
+                <span id="reverb-readout" class="dsp-val-badge">0%</span>
+              </div>
+              <input type="range" id="dsp-reverb-slider" class="retro-slider" min="0" max="100" value="0" title="Reverb Wet/Dry Mix">
+            </div>
+
+            <div class="dsp-slider-item">
+              <div class="dsp-slider-label">
+                <span>3D WIDTH</span>
+                <span id="width-readout" class="dsp-val-badge">100%</span>
+              </div>
+              <input type="range" id="dsp-width-slider" class="retro-slider" min="0" max="200" value="100" title="Stereo Field Width (Mono to Ultra-Wide)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Analog Warmth & Low-End (Sub-Bass Exciter & Tape Drive) -->
+        <div class="dsp-module-card">
+          <div class="dsp-module-title">
+            <span>🔥 TAPE WARMTH &amp; SUB-BASS (55Hz)</span>
+          </div>
+          <div class="dsp-control-grid dsp-2col">
+            <div class="dsp-slider-item">
+              <div class="dsp-slider-label">
+                <span>SUB-BASS</span>
+                <span id="bass-readout" class="dsp-val-badge">+0dB</span>
+              </div>
+              <input type="range" id="dsp-bass-slider" class="retro-slider" min="0" max="18" value="0" title="55Hz Sub-Bass Resonant Boost">
+            </div>
+
+            <div class="dsp-slider-item">
+              <div class="dsp-slider-label">
+                <span>WARMTH</span>
+                <span id="sat-readout" class="dsp-val-badge">0%</span>
+              </div>
+              <input type="range" id="dsp-sat-slider" class="retro-slider" min="0" max="100" value="0" title="Tape &amp; Tube Saturation Drive">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: "Through & Through" Auto-DJ Crossfader Deck -->
+        <div class="dsp-module-card dj-deck-card">
+          <div class="dsp-module-title">
+            <span>🎧 "THROUGH &amp; THROUGH" AUTO-DJ DECK</span>
+            <span id="dj-status-badge" class="dj-live-tag">READY</span>
+          </div>
+
+          <div class="dj-deck-controls">
+            <div class="dj-mode-row">
+              <button id="btn-toggle-autodj" class="dj-toggle-btn active" title="Toggle Continuous Through-and-Through DJ Playback">
+                <span id="autodj-led" class="dj-indicator-dot on"></span>
+                <span>AUTO-DJ: PLAY THROUGH &amp; THROUGH</span>
+              </button>
+            </div>
+
+            <div class="dsp-slider-item" style="margin-top: 6px;">
+              <div class="dsp-slider-label">
+                <span>CROSSFADE DURATION</span>
+                <span id="crossfade-readout" class="dsp-val-badge">3.5s</span>
+              </div>
+              <input type="range" id="dsp-crossfade-slider" class="retro-slider" min="0" max="100" value="35" title="DJ Crossfade Blend Time (0s to 10s)">
+            </div>
+
+            <!-- Visual Crossfader Position Indicator -->
+            <div class="dj-crossfader-visual" title="Live Dual-Deck Crossfader Position">
+              <span class="deck-tag deck-a">DECK A</span>
+              <div class="crossfader-track">
+                <div id="crossfader-fader" class="crossfader-handle" style="left: 0%;"></div>
+              </div>
+              <span class="deck-tag deck-b">DECK B</span>
+            </div>
           </div>
         </div>
       </div>

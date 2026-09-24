@@ -276,7 +276,8 @@ export class WindowManager {
       'window-main': { x: 12, y: 12, isShaded: false, isVisible: true },
       'window-eq': { x: 12, y: 162, isShaded: false, isVisible: true },
       'window-playlist': { x: 12, y: 304, isShaded: false, isVisible: true },
-      'window-visualizer': { x: 290, y: 12, isShaded: false, isVisible: true }
+      'window-visualizer': { x: 290, y: 12, isShaded: false, isVisible: true },
+      'window-dsp': { x: 290, y: 310, isShaded: false, isVisible: true }
     };
 
     Object.keys(defaultPos).forEach(id => {
