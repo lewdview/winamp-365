@@ -16,7 +16,7 @@ module.exports = function handler(req, res) {
 
   const targetUrl = req.query.url;
 
-  if (!targetUrl || (!targetUrl.startsWith('https://files.th3scr1b3.art/') && !targetUrl.startsWith('https://pznmptudgicrmljjafex.supabase.co/'))) {
+  if (!targetUrl || (!targetUrl.startsWith('https://files.th3scr1b3.art/'))) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Invalid target audio URL');
     return;
